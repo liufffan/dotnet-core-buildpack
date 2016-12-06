@@ -30,11 +30,13 @@ module AspNetCoreBuildpack
 
       framework_versions = []
 
-      if !runtime_config_json_file.nil?
+      if runtime_config_json_file != nil
         framework_versions += [ get_version_from_runtime_config_json(runtime_config_json_file) ]
       elsif restored_framework_versions.any?
         out.print("Detected .NET Framework version(s) #{restored_framework_versions.join(', ')} required according to 'dotnet restore'")
         framework_versions += restored_framework_versions
+      else
+        raise "Unable to determine .NET Framework version(s) to install"
       end
 
       framework_versions.uniq
@@ -49,7 +51,11 @@ module AspNetCoreBuildpack
     end
 
     def get_version_from_runtime_config_json(runtime_config_json_file)
-      global_props = JSON.parse(File.read(runtime_config_json_file, encoding: 'bom|utf-8'))
+      begin
+        global_props = JSON.parse(File.read(runtime_config_json_file, encoding: 'bom|utf-8'))
+      rescue
+        raise "#{runtime_config_json_file} contains invalid JSON"
+      end
 
       has_well_formed_version = global_props.key?('runtimeOptions') &&
                                 global_props['runtimeOptions'].key?('framework') &&

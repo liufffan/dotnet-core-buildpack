@@ -55,8 +55,10 @@ module AspNetCoreBuildpack
         step('Restoring dependencies with Dotnet CLI', @dotnet_sdk.method(:restore))
       end
 
-      @dotnet_framework = DotnetFramework.new(@build_dir, @manifest_file, File.join(@build_dir, NUGET_CACHE_DIR), File.join(@build_dir, @dotnet_sdk.cache_dir), shell)
-      step('Installing .NET Framework(s)', @dotnet_framework.method(:install))
+      if @dotnet_sdk != nil
+        @dotnet_framework = DotnetFramework.new(@build_dir, File.join(@build_dir, NUGET_CACHE_DIR), File.join(@build_dir, @dotnet_sdk.cache_dir), shell)
+        step('Installing .NET Framework(s)', @dotnet_framework.method(:install))
+      end
 
       step('Saving to buildpack cache', method(:save_cache))
       puts "ASP.NET Core buildpack is done creating the droplet\n"

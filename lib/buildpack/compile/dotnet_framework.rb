@@ -21,10 +21,8 @@ require 'fileutils'
 module AspNetCoreBuildpack
   class DotnetFramework
 
-
-    def initialize(build_dir, manifest_file, nuget_cache_dir, dotnet_install_dir, shell)
+    def initialize(build_dir, nuget_cache_dir, dotnet_install_dir, shell)
       @build_dir = build_dir
-      @manifest_file = manifest_file
       @nuget_cache_dir = nuget_cache_dir
       @dotnet_install_dir = dotnet_install_dir
       @shell = shell
@@ -51,14 +49,13 @@ module AspNetCoreBuildpack
       '.NET Framework'.freeze
     end
 
-
     private
 
     def clean_up_frameworks(out)
       frameworks_to_remove = installed_frameworks - versions
 
       frameworks_to_remove.each do |version|
-        out.print("Removing .NET Framework: #{version}")
+        out.print("Removing .NET Framework #{version}")
         FileUtils.rm_rf(File.join(@dotnet_install_dir, 'shared', 'Microsoft.NETCore.App',version))
       end
     end
