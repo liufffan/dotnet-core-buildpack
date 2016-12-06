@@ -30,13 +30,13 @@ module AspNetCoreBuildpack
 
       framework_versions = []
 
-      if runtime_config_json_file != nil
-        framework_versions += [ get_version_from_runtime_config_json(runtime_config_json_file) ]
+      if !runtime_config_json_file.nil?
+        framework_versions += [get_version_from_runtime_config_json(runtime_config_json_file)]
       elsif restored_framework_versions.any?
         out.print("Detected .NET Framework version(s) #{restored_framework_versions.join(', ')} required according to 'dotnet restore'")
         framework_versions += restored_framework_versions
       else
-        raise "Unable to determine .NET Framework version(s) to install"
+        raise 'Unable to determine .NET Framework version(s) to install'
       end
 
       framework_versions.uniq
@@ -45,7 +45,7 @@ module AspNetCoreBuildpack
     private
 
     def restored_framework_versions
-      Dir.glob(File.join(@nuget_cache_dir, 'packages', 'Microsoft.NETCore.App','*')).map do |path|
+      Dir.glob(File.join(@nuget_cache_dir, 'packages', 'Microsoft.NETCore.App', '*')).map do |path|
         File.basename(path)
       end
     end
@@ -61,14 +61,12 @@ module AspNetCoreBuildpack
                                 global_props['runtimeOptions'].key?('framework') &&
                                 global_props['runtimeOptions']['framework'].key?('version')
 
-      if has_well_formed_version
-        version = global_props['runtimeOptions']['framework']['version']
-        out.print("Detected .NET Framework version #{version} in #{runtime_config_json_file}")
+      raise "Could not get version from #{runtime_config_json_file}" unless has_well_formed_version
 
-        return version
-      else
-        raise "Could not get version from #{runtime_config_json_file}"
-      end
+      version = global_props['runtimeOptions']['framework']['version']
+      out.print("Detected .NET Framework version #{version} in #{runtime_config_json_file}")
+
+      version
     end
 
     attr_reader :out

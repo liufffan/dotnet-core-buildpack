@@ -51,11 +51,9 @@ module AspNetCoreBuildpack
 
       run_installers
 
-      if should_restore?
-        step('Restoring dependencies with Dotnet CLI', @dotnet_sdk.method(:restore))
-      end
+      step('Restoring dependencies with Dotnet CLI', @dotnet_sdk.method(:restore)) if should_restore?
 
-      if @dotnet_sdk != nil
+      unless @dotnet_sdk.nil?
         @dotnet_framework = DotnetFramework.new(@build_dir, File.join(@build_dir, NUGET_CACHE_DIR), File.join(@build_dir, @dotnet_sdk.cache_dir), shell)
         step('Installing .NET Framework(s)', @dotnet_framework.method(:install))
       end
